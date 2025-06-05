@@ -13,7 +13,7 @@ This repository contains a simple Python script that tweets recent articles from
 Install dependencies with:
 
 ```bash
-pip install feedparser schedule tweepy pytz
+pip install -r requirements.txt
 ```
 
 Set the following environment variables with your Twitter API credentials:
