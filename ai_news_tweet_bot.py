@@ -1,10 +1,11 @@
-import os
 import feedparser
 import schedule
 import tweepy
 import time
 from datetime import datetime, timedelta
 import pytz
+import threading
+import gradio as gr
 
 FEED_URL = "https://techcrunch.com/category/artificial-intelligence/feed/"
 
@@ -21,17 +22,17 @@ def fetch_recent_articles(hours=16):
     return articles
 
 
-def tweet_articles():
+def tweet_articles(consumer_key, consumer_secret, access_token, access_secret):
     articles = fetch_recent_articles()
     if not articles:
         print("No new articles to tweet.")
         return
 
     auth = tweepy.OAuth1UserHandler(
-        os.environ.get("TWITTER_CONSUMER_KEY"),
-        os.environ.get("TWITTER_CONSUMER_SECRET"),
-        os.environ.get("TWITTER_ACCESS_TOKEN"),
-        os.environ.get("TWITTER_ACCESS_SECRET"),
+        consumer_key,
+        consumer_secret,
+        access_token,
+        access_secret,
     )
     api = tweepy.API(auth)
 
@@ -44,12 +45,41 @@ def tweet_articles():
             print(f"Failed to tweet {tweet_text}: {e}")
 
 
-def schedule_tweets():
-    schedule.every().day.at("07:45").do(tweet_articles)
+def run_scheduler():
     while True:
         schedule.run_pending()
         time.sleep(60)
 
 
+def schedule_tweets(consumer_key, consumer_secret, access_token, access_secret):
+    schedule.clear()
+    schedule.every().day.at("07:45").do(
+        tweet_articles, consumer_key, consumer_secret, access_token, access_secret
+    )
+    threading.Thread(target=run_scheduler, daemon=True).start()
+
+
+def start_bot(consumer_key, consumer_secret, access_token, access_secret):
+    schedule_tweets(consumer_key, consumer_secret, access_token, access_secret)
+    return "Bot scheduled to tweet daily at 07:45"
+
+
+iface = gr.Interface(
+    fn=start_bot,
+    inputs=[
+        gr.Textbox(label="Consumer Key"),
+        gr.Textbox(label="Consumer Secret"),
+        gr.Textbox(label="Access Token"),
+        gr.Textbox(label="Access Secret"),
+    ],
+    outputs="text",
+    title="TechCrunch AI Tweet Bot",
+    description=(
+        "Enter your Twitter API credentials and launch the bot. It will tweet "
+        "recent AI articles from TechCrunch every day at 07:45."
+    ),
+)
+
+
 if __name__ == "__main__":
-    schedule_tweets()
+    iface.launch()
