@@ -1,36 +1,35 @@
 # my_codex
-# TechCrunch AI Tweet Bot
 
-This repository contains a simple Python script that tweets recent articles from TechCrunch's Artificial Intelligence section. The script reads the last 16 hours of posts from the RSS feed and tweets them every day at **07:45**. A small Gradio web interface is provided so you can supply your Twitter API credentials directly in the browser and start the bot.
+This repository contains two small Python projects:
 
-## Requirements
+1. **TechCrunch AI Tweet Bot** - tweets recent articles from TechCrunch's AI feed.
+2. **Canal Quantity App** (`canal_app/`) - a Streamlit demo that calculates canal section quantities.
 
-- Python 3
-- `feedparser` for parsing RSS feeds
-- `schedule` for scheduling tasks
-- `tweepy` for interacting with the Twitter API
-- `pytz` for timezone handling
-- `gradio` for the web interface
+## TechCrunch AI Tweet Bot
 
-Install dependencies with:
+Install dependencies and run the Gradio interface to provide Twitter API keys.
 
 ```bash
 pip install -r requirements.txt
-```
-
-You can optionally set the following environment variables with your Twitter API credentials if you prefer running the script without the web UI:
-
-- `TWITTER_CONSUMER_KEY`
-- `TWITTER_CONSUMER_SECRET`
-- `TWITTER_ACCESS_TOKEN`
-- `TWITTER_ACCESS_SECRET`
-
-## Running
-
-Run the script to open the Gradio interface. Provide your keys and click "Submit" to start the scheduled tweets:
-
-```bash
 python ai_news_tweet_bot.py
 ```
 
-The script will stay alive and check for scheduled tasks once per minute.
+The script schedules tweets every day at **07:45**.
+
+## Canal Quantity App
+
+Navigate into `canal_app/` and install the app requirements:
+
+```bash
+pip install -r canal_app/requirements.txt
+streamlit run canal_app/streamlit_app.py
+```
+
+A simple GUI lets you select a canal section, enter dimensions in millimeters, and see live calculations. The Dockerfile allows running with Docker:
+
+```bash
+docker build -t canal_app ./canal_app
+docker run -p 8501:8501 canal_app
+```
+
+Enjoy experimenting with example values in metres (m), square metres (m²) and cubic metres (m³).
